@@ -1,0 +1,6 @@
+@SistemadeGuarderias.Api_HostAddress = http://localhost:5074
+
+GET {{SistemadeGuarderias.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
