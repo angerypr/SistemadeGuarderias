@@ -35,11 +35,6 @@ namespace SistemadeGuarderias.Infrastructure
                 .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Nino>()
-                .HasMany(n => n.Pagos)
-                .WithOne(p => p.Nino)
-                .HasForeignKey(p => p.NinoId);
-
-            modelBuilder.Entity<Nino>()
                 .HasOne(n => n.Tutor)
                 .WithMany(t => t.Ninos)
                 .HasForeignKey(n => n.TutorId);
@@ -47,7 +42,8 @@ namespace SistemadeGuarderias.Infrastructure
             modelBuilder.Entity<Actividad>()
                 .HasOne(a => a.Guarderia)
                 .WithMany(g => g.Actividades)
-                .HasForeignKey(a => a.GuarderiaId);
+                .HasForeignKey(a => a.GuarderiaId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Nino>()
                 .HasMany(n => n.Asistencias)
@@ -60,11 +56,6 @@ namespace SistemadeGuarderias.Infrastructure
                 .HasForeignKey(a => a.GuarderiaId);
 
             modelBuilder.Entity<Guarderia>()
-                .HasMany(g => g.Ninos)
-                .WithOne(n => n.Guarderia)
-                .HasForeignKey(n => n.GuarderiaId);
-
-            modelBuilder.Entity<Guarderia>()
                 .HasMany(g => g.Actividades)
                 .WithOne(a => a.Guarderia)
                 .HasForeignKey(a => a.GuarderiaId);
@@ -72,27 +63,8 @@ namespace SistemadeGuarderias.Infrastructure
             modelBuilder.Entity<Guarderia>()
                 .HasMany(g => g.Pagos)
                 .WithOne(p => p.Guarderia)
-                .HasForeignKey(p => p.GuarderiaId);
-
-            modelBuilder.Entity<Nino>()
-                .HasMany(n => n.Mensajes)
-                .WithOne(m => m.Nino)
-                .HasForeignKey(m => m.NinoId);
-
-            modelBuilder.Entity<Tutor>()
-                .HasMany(t => t.Mensajes)
-                .WithOne(m => m.Tutor)
-                .HasForeignKey(m => m.TutorId);
-
-            modelBuilder.Entity<Guarderia>()
-                .HasMany(g => g.Mensajes)
-                .WithOne(m => m.Guarderia)
-                .HasForeignKey(m => m.GuarderiaId);
-
-            modelBuilder.Entity<Tutor>()
-                .HasMany(t => t.Pagos)
-                .WithOne(p => p.Tutor)
-                .HasForeignKey(p => p.TutorId);
+                .HasForeignKey(p => p.GuarderiaId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             //Configuracion Actividad
             modelBuilder.Entity<Actividad>(entity =>
@@ -163,15 +135,12 @@ namespace SistemadeGuarderias.Infrastructure
                     .HasForeignKey(a => a.GuarderiaId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasMany(g => g.Pagos)
-                    .WithOne(p => p.Guarderia)
-                    .HasForeignKey(p => p.GuarderiaId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
                 entity.HasMany(g => g.Mensajes)
                     .WithOne(m => m.Guarderia)
                     .HasForeignKey(m => m.GuarderiaId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(g => g.Nombre);
             });
 
             //Configuracion Mensajes
@@ -187,20 +156,6 @@ namespace SistemadeGuarderias.Infrastructure
                 entity.Property(m => m.Hora)
                     .IsRequired();
 
-                entity.HasOne(m => m.Nino)
-                    .WithMany(n => n.Mensajes)
-                    .HasForeignKey(m => m.NinoId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(m => m.Tutor)
-                    .WithMany(t => t.Mensajes)
-                    .HasForeignKey(m => m.TutorId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(m => m.Guarderia)
-                    .WithMany(g => g.Mensajes)
-                    .HasForeignKey(m => m.GuarderiaId)
-                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             //Configuracion Nino
@@ -222,11 +177,6 @@ namespace SistemadeGuarderias.Infrastructure
                      .HasForeignKey(n => n.TutorId)
                      .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasOne(n => n.Actividad)
-                     .WithMany(a => a.Ninos)
-                     .HasForeignKey(n => n.ActividadId)
-                     .OnDelete(DeleteBehavior.SetNull);
-
                 entity.HasOne(n => n.Guarderia)
                      .WithMany(g => g.Ninos)
                      .HasForeignKey(n => n.GuarderiaId)
@@ -236,11 +186,6 @@ namespace SistemadeGuarderias.Infrastructure
                     .WithOne(p => p.Nino)
                     .HasForeignKey(p => p.NinoId)
                     .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasMany(n => n.Asistencias)
-                        .WithOne(a => a.Nino)
-                        .HasForeignKey(a => a.NinoId)
-                        .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasMany(n => n.Mensajes)
                         .WithOne(m => m.Nino)
@@ -271,12 +216,8 @@ namespace SistemadeGuarderias.Infrastructure
                 entity.HasOne(p => p.Tutor)
                     .WithMany(t => t.Pagos)
                     .HasForeignKey(p => p.TutorId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasOne(p => p.Guarderia)
-                    .WithMany(g => g.Pagos)
-                    .HasForeignKey(p => p.GuarderiaId)
-                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             //Configuracion Tutor
@@ -301,20 +242,12 @@ namespace SistemadeGuarderias.Infrastructure
                 entity.Property(t => t.CorreoElectronico)
                     .HasMaxLength(100);
 
-                entity.HasMany(t => t.Ninos)
-                    .WithOne(n => n.Tutor)
-                    .HasForeignKey(n => n.TutorId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
                 entity.HasMany(t => t.Mensajes)
                     .WithOne(m => m.Tutor)
                     .HasForeignKey(m => m.TutorId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasMany(t => t.Pagos)
-                    .WithOne(p => p.Tutor)
-                    .HasForeignKey(p => p.TutorId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasIndex(t => t.Cedula).IsUnique();
             });
 
         }
